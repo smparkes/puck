@@ -1,0 +1,4 @@
+ignore "vendor/{jquery.print,jquery,feste}"
+
+jslintrb
+jazz
