@@ -2,6 +2,7 @@
 (function($){
   var any = jasmine.any;
   var State = Puck.State;
+  var global = (function(){return this;}());
 
   describe("Puck",function(){
     describe("State",function(){
@@ -86,17 +87,17 @@
         });
       });
 
-      xit("should be defined", function(){
+      it("should be defined", function(){
         expect(State).toBeDefined();
       });
 
       describe("constructor", function(){
 
-        xit("should be constructable", function(){
+        it("should be constructable", function(){
           expect(new State()).toBeDefined();
         });
 
-        xit("should be constructable with paths", function(){
+        it("should be constructable wxith paths", function(){
           var a = {c: "a"};
           var b = {c: "b"};
           var state = new State(
@@ -108,7 +109,7 @@
           expect(state.value.b).toEqual(b);
         });
 
-        xit("should be constructable w/o a path", function(){
+        it("should be constructable w/o a path", function(){
           var a = {c: "a"};
           var state = new State({value: a});
           expect(state).toBeDefined();
@@ -125,23 +126,23 @@
 
 
         describe("change", function(){
-          xit("should exist", function(){
+          it("should exist", function(){
             expect(this.state.change).toBeDefined();
           });
 
-          xit("should not flag unchanged objects as changed", function(){
+          it("should not flag unchanged objects as changed", function(){
             expect(this.state.changed()).toBe(false);
           });
 
-          xit("should flag object as changed", function(){
+          it("should flag object as changed", function(){
             this.state.change();
             expect(this.state.changed()).toBe(true);
           });
 
-          xit("should reset changed flag after commit", function(){
+          it("should reset changed flag after commxit", function(){
             this.state.change();
             expect(this.state.changed()).toBe(true);
-            this.state.commxit();
+            this.state.commit();
             expect(this.state.changed()).toBe(false);
           });
         });
@@ -155,38 +156,35 @@
             this.notify = function(){};
           });
           
-          xit("should exist and return the state object", function(){
+          it("should exist and return the state object", function(){
             expect(this.state.publish({via: this})).toBe(this.state);
           });
 
-          xit("should publish the initial state if it exists", function(){
+          it("should publish the inxitial state if xit exists", function(){
             spyOn(this,"notify");
-            this.state.commxit();
+            this.state.commit();
             this.state.publish({via:this});
             expect(this.notify).wasCalled();
           });
 
-          xit("should publish initial state", function(){
+          it("should publish inxitial state", function(){
             spyOn(this,"notify");
             this.state.publish({via:this});
             expect(this.notify).wasCalled();
           });
 
-          xit("should expose the contents", function(){
+          it("should expose the contents", function(){
             expect(this.state.value.a).toEqual("b");
           });
 
-          xit("should publish the state event on change", function(){
+          it("should publish the state event on change", function(){
             this.notify = function(event){
-              expect(event).toEqual([{
-                serial_number: 1,
-                diff: {a: 10}
-              }]);
+              expect(event).toEqual([ 1,{a: 10}]);
               complete();
             };
             this.state.value.a = 10;
             this.state.changed();
-            this.state.commxit();
+            this.state.commit();
             this.state.publish({via:this});
             incomplete();
           });
@@ -196,16 +194,16 @@
 
       describe("value", function(){
 
-        xit("should exist", function(){
+        it("should exist", function(){
           expect(State.value).toBeDefined();
         });
 
-        xit("should be constructable from a pair", function(){
+        it("should be constructable from a pair", function(){
           var object = {a: "value"};
           expect(new State({value: State.value(object,"a")})).toBeDefined();
         });
 
-        xit("should expose value", function(){
+        it("should expose value", function(){
           var object = {a: "value"};
           var state =  new State({value: State.value(object,"a")});
           expect(state.value.get()).toBe(object.a);
@@ -216,11 +214,36 @@
 
     describe("pubsub",function(){
 
-      xit("should update the subscriber after sub", function(){
+      it("should update the subscriber after sub at the top", function(){
         this.subscriber = new Puck.Subscriber();
         this.publisher = new Puck.Publisher();
 
-        var state = {a: "b"};
+        var state = {path: "a", value: "b"};
+
+        this.publisher.state = new State(
+          state,
+          {path: "c", value: "d"}
+        );
+        this.publisher.state.publish({via: this.publisher});
+
+        this.subscriber.state = new State({value: function(){}});
+
+        spyOn(this.subscriber.state,"set_state").andCallFake(function(s){
+          expect(s).toEqual({a:"b",c:"d"});
+          complete();
+        });
+
+        this.subscriber.state.subscribe({to: this.publisher,
+                                         via: this.subscriber});
+
+        incomplete();
+      });
+
+      xit("should update the subscriber after sub based on paths", function(){
+        this.subscriber = new Puck.Subscriber();
+        this.publisher = new Puck.Publisher();
+
+        var state = {path: "a", value: "b"};
 
         this.publisher.state = new State(
           state,
@@ -231,15 +254,20 @@
         this.subscriber.state = new State({path: "a",
                                            value: function(){}});
 
-        spyOn(this.subscriber.state,"value").andCallFake(function(s){
-          expect(s).toEqual(state);
+        spyOn(this.subscriber.state,"set_state").andCallFake(function(s){
+          global.console.debug("called: "+$.print(s));
+          expect(s).toEqual("b");
           complete();
         });
 
-        this.subscriber.state.subscribe({to: this.publisher, via: this.subscriber});
+        this.subscriber.state.subscribe({to: this.publisher,
+                                         via: this.subscriber});
 
         incomplete();
       });
+
+      it("should get new state on update");
+      it("should get diff on update");
 
       xit("should make state avaliable via pub and sub", function(){
         this.subscriber = new Puck.Subscriber();
