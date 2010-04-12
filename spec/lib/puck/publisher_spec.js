@@ -12,11 +12,11 @@
         var Cls = function(){};
         $.extend(Cls.prototype,Puck.Publisher.prototype);
         var pub =  new Cls();
-        pub.add_subscription( {} );
+        pub.add(function(){});
       });
 
       it("should accept subscription cancelations");
-      it("should call callbacks on state changes");
+      it("should call callbacks on events");
 
     });
 

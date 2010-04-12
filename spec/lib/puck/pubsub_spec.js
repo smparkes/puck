@@ -20,42 +20,18 @@
       it("should receive callbacks on publisher changes",function(){
         var hash = {a: "b"};
         this.sub.subscribe({to: this.pub, call: "method"});
-        this.sub.method = function method(state) {
-          expect(state).toEqual(hash);
+        this.sub.method = function method(event) {
+          expect(event).toEqual(hash);
           complete();
         };
         this.pub.notify(hash);
         incomplete();
       });
 
-      it("should receive an initial state", function() {
+      it("should get first event", function() {
         var hash = {a: "b"};
-        this.sub.method = function method(state) {
-          expect(state).toEqual(hash);
-          complete();
-        };
-        this.pub.notify(hash);
-        this.sub.subscribe({to: this.pub, call: "method"});
-        incomplete();
-      });
-
-      it("should not receive an initial state if there is none", function() {
-        var hash = {a: "b"};
-        this.sub.method = function method(state) {
-          expect(false).toBe(true);
-        };
-        setTimeout(function(){
-          complete();
-        },100);
-        this.pub.notify(hash);
-        this.sub.subscribe({to: this.pub, call: "method", state_id: 1});
-        incomplete();
-      });
-
-      it("should get first state", function() {
-        var hash = {a: "b"};
-        this.sub.method = function method(state) {
-          expect(state).toEqual(hash);
+        this.sub.method = function method(event) {
+          expect(event).toEqual(hash);
           complete();
         };
         this.sub.subscribe({to: this.pub, call: "method"});
@@ -63,16 +39,16 @@
         incomplete();
       });
 
-      it("should only send state to new object on init request", function() {
+      it("should only send event to new object on init request", function() {
         var hash = {a: "b"};
-        this.sub2.method = function method(state) {
-          expect(state).toEqual(hash);
-          this.method = function(state) {
+        this.sub2.method = function method(event) {
+          expect(event).toEqual(hash);
+          this.method = function(event) {
             expect(true).toBe(false);
           };
         };
-        this.sub.method = function method(state) {
-          expect(state).toEqual(hash);
+        this.sub.method = function method(event) {
+          expect(event).toEqual(hash);
         };
         setTimeout(function(){
           complete();
@@ -89,9 +65,9 @@
 
       it("should not receive callbacks after unsub", function() {
         var hash = {a: "b"};
-        this.sub.method = function method(state) {
-          expect(state).toBe(hash);
-          this.method = function (state) {
+        this.sub.method = function method(event) {
+          expect(event).toBe(hash);
+          this.method = function (event) {
             expect(false).toBe(true);
           };
         };
