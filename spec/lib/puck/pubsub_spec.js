@@ -28,6 +28,8 @@
         incomplete();
       });
 
+/* This is no longer true: not sure if it'll be resurected?
+
       it("should receive an initial state", function() {
         var hash = {a: "b"};
         this.sub.method = function method(state) {
@@ -51,6 +53,7 @@
         this.sub.subscribe({to: this.pub, call: "method", state_id: 1});
         incomplete();
       });
+*/
 
       it("should get first state", function() {
         var hash = {a: "b"};
@@ -84,7 +87,7 @@
       });
 
       it("should be possible to unsubscribe", function() {
-        this.sub.unsubscribe({to: this.pub, call: "method"});
+        this.sub.unsubscribe({from: this.pub, call: "method"});
       });
 
       it("should not receive callbacks after unsub", function() {
@@ -100,7 +103,7 @@
         },100);
         this.sub.subscribe({to: this.pub, call: "method"});
         this.pub.notify(hash);
-        this.sub.unsubscribe({to: this.pub, call: "method"});
+        this.sub.unsubscribe({from: this.pub, call: "method"});
         this.pub.notify(hash);
         incomplete();
       });
